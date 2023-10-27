@@ -1,4 +1,5 @@
-import { get_diskusage, DiskUsage } from "./DiskUsage.ts";
+// import { get_diskusage, DiskUsage } from "./DiskUsage_unix_like.ts";
+import { get_diskusage, DiskUsage } from "./DiskUsage_win.ts";
 
 // function check(path: string) {
 

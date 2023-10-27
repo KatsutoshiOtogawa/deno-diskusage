@@ -1,14 +1,9 @@
-import { c_ulong, Statvfs } from "./statvfs.ts"
+import { c_ulong, StatvfsStruct } from "./statvfs_struct.ts"
 import { load } from "./load_library.ts";
 
-type DiskUsage = {
-    available: c_ulong,
-    free: c_ulong,
-    total: c_ulong
-}
 
-function get_diskusage(path: string): DiskUsage | undefined{
-    const {statvfs, malloc, free, __errno_location, library } = load();
+function statvfs(path: Uint8Array): StatvfsStruct {
+    const {statvfs, malloc, __errno_location, free, library } = load();
 
     // libclose();usingで最後に実行されることを後に保証。
 
@@ -17,19 +12,17 @@ function get_diskusage(path: string): DiskUsage | undefined{
     const errno_view = new Deno.UnsafePointerView(errno_pointer)
     const errno = errno_view.getBigInt64();
 
-    // 
-    const buf = new TextEncoder().encode(path);
-
     // 0なら成功 -1なら失敗
     let stat_result = -1 | 0;
 
-    let diskusage: DiskUsage | undefined;
+    let statvfs_result: StatvfsStruct;
     // 11, 12, 13ならエラーになる。
     // 大きめに撮る必要がある。
     // 面倒くさいなら、2の倍数で取得しておくと間違いがない。
+    // sizeof
     let statvfs_ptr = malloc(16 * 8);
     try {
-        stat_result = statvfs(buf, statvfs_ptr);
+        stat_result = statvfs(path, statvfs_ptr);
         // statvfs false;
         if (stat_result === -1) {
             // 勝手に値が変わるから
@@ -59,7 +52,7 @@ function get_diskusage(path: string): DiskUsage | undefined{
         const f_flag = statvfs_view.getBigUint64(72) as bigint;
         const f_namemax = statvfs_view.getBigUint64(80) as bigint;
 
-        const statvs_result: Statvfs = {
+        statvfs_result = {
             f_bsize,
             f_frsize,
             f_blocks,
@@ -73,21 +66,14 @@ function get_diskusage(path: string): DiskUsage | undefined{
             f_namemax
         }
 
-        // 値設定。
-        diskusage = {
-            available: statvs_result.f_bafvail * statvs_result.f_frsize,
-            free: statvs_result.f_bfree * statvs_result.f_frsize,
-            total: statvs_result.f_blocks * statvs_result.f_frsize
-        }
     } finally {
         free(statvfs_ptr);
         library.close();
     }
 
-    return diskusage;
+    return statvfs_result;
 }
 
 export {
-    type DiskUsage,
-    get_diskusage,
+    statvfs,
 }

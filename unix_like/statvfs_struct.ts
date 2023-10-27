@@ -4,7 +4,7 @@ type fsblkcnt_t = c_ulong;
 type fsfilcnt_t = c_ulong;
 
 // statfsとstatvfsがあるので中尉。
-type Statvfs = {
+type StatvfsStruct = {
     f_bsize: c_ulong,
     f_frsize: c_ulong,
     f_blocks: fsblkcnt_t,
@@ -22,5 +22,5 @@ export {
     type c_ulong,
     type fsblkcnt_t,
     type fsfilcnt_t,
-    type Statvfs,
+    type StatvfsStruct,
 }

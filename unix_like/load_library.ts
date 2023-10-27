@@ -1,21 +1,21 @@
-import { _load, CallSymbol } from './_load_library.ts';
+import { _load } from './_load_library.ts';
 
 function load() {
 
   const library = _load();
 
   const { 
-    __errno_location,
-    statvfs,
     free,
     malloc,
+    statvfs,
+    __errno_location,
   } = library.symbols;
 
   return {
-    __errno_location,
-    statvfs,
     free,
     malloc,
+    statvfs,
+    __errno_location,
     library,
   };
 }

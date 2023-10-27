@@ -1,6 +1,7 @@
 import { checkSync, check } from "../check.ts";
 
-const path = '/usr/lib'
+// const path = '/usr/lib'
+const path = 'C:/Users/katsutoshi/Downloads'
 
 try {
     const info = checkSync(path);
